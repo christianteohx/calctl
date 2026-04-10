@@ -1,0 +1,12 @@
+title = "Gitleaks config"
+
+[extend]
+useDefault = true
+
+# Keep allowlist narrow and explicit if needed in future.
+[allowlist]
+description = "Project allowlist"
+paths = [
+  '''(^|/)package-lock\.json$''',
+  '''(^|/)Package\.resolved$'''
+]

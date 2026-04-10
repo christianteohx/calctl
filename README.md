@@ -97,3 +97,15 @@ Builds, runs `--help`, `status`, `list`, and `today`. Non-destructive. Exit 0 = 
 ---
 
 See [SPEC.md](./SPEC.md) for full CLI grammar and [BACKLOG.md](./BACKLOG.md) for feature status.
+
+## Secret scanning
+
+This repo uses **gitleaks**:
+- CI scan on every push/PR via `.github/workflows/gitleaks.yml`
+- Optional local pre-commit hook in `.githooks/pre-commit`
+
+Enable local hook once:
+
+```bash
+./scripts/setup-githooks.sh
+```
