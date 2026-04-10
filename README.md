@@ -4,23 +4,29 @@ Native macOS CLI for Apple Calendar via EventKit.
 
 > **Inspiration & props:** This project is directly inspired by [steipete/remindctl](https://github.com/steipete/remindctl) — a great native CLI for Apple Reminders. `calctl` follows the same spirit for Apple Calendar: fast, scriptable, and no AppleScript/osascript.
 
-## Build
+## Install
+
+### Homebrew (recommended)
+```bash
+brew install christianteohx/tap/calctl
+```
+
+### Direct binary
+```bash
+curl -fsSL https://github.com/christianteohx/calctl/releases/latest/download/calctl -o ~/bin/calctl
+chmod +x ~/bin/calctl
+```
+
+## Build from source
+
+Requires macOS 14+ and Swift 6.0+.
 
 ```bash
-git clone <repo-url> calctl
+git clone https://github.com/christianteohx/calctl
 cd calctl
 swift build
+.build/release/calctl <command>
 ```
-
-**Binary:** `.build/arm64-apple-macosx/debug/calctl`
-
-To install globally:
-```bash
-cp .build/arm64-apple-macosx/debug/calctl /usr/local/bin/calctl
-chmod +x /usr/local/bin/calctl
-```
-
-> Requires macOS 14+ (Sonoma) and Swift 6.0+
 
 ## Permission Setup
 
