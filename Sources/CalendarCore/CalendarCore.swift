@@ -121,7 +121,11 @@ public actor CalendarEventsStore {
             event.calendar = defaultCalendar
         }
 
-        try eventStore.save(event, span: .thisEvent, commit: true)
+        if let rrule = draft.recurrenceRule {
+            event.recurrenceRules = [try parseRecurrenceRule(rrule, startDate: startDate)]
+        }
+
+        try eventStore.save(event, span: .futureEvents, commit: true)
         return eventToCalendarEvent(event)
     }
 
@@ -271,5 +275,84 @@ public actor CalendarEventsStore {
         case .birthdays: return "birthdays"
         @unknown default: return "unknown"
         }
+    }
+
+    private func parseRecurrenceRule(_ rrule: String, startDate: Date) throws -> EKRecurrenceRule {
+        var frequency: EKRecurrenceFrequency = .daily
+        var interval = 1
+        var daysOfTheWeek: [EKRecurrenceDayOfWeek] = []
+        var daysOfTheMonth: [NSNumber] = []
+        var occurrenceCount: Int? = nil
+        var endDate: Date? = nil
+
+        let parts = rrule.split(separator: ";").map { String($0) }
+        for part in parts {
+            let keyValue = part.split(separator: "=", maxSplits: 1).map { String($0) }
+            guard keyValue.count == 2 else { continue }
+            let key = keyValue[0], value = keyValue[1]
+
+            switch key {
+            case "FREQ":
+                switch value {
+                case "DAILY": frequency = .daily
+                case "WEEKLY": frequency = .weekly
+                case "MONTHLY": frequency = .monthly
+                case "YEARLY": frequency = .yearly
+                default: frequency = .daily
+                }
+            case "INTERVAL":
+                interval = Int(value) ?? 1
+            case "BYDAY":
+                let dayMap: [String: EKWeekday] = [
+                    "MO": .monday, "TU": .tuesday, "WE": .wednesday,
+                    "TH": .thursday, "FR": .friday, "SA": .saturday, "SU": .sunday
+                ]
+                let days = value.split(separator: ",").map { String($0) }
+                for day in days {
+                    let cleanDay = day.trimmingCharacters(in: .whitespaces)
+                    if let ekDay = dayMap[cleanDay] {
+                        daysOfTheWeek.append(EKRecurrenceDayOfWeek(dayOfTheWeek: ekDay, weekNumber: 0))
+                    }
+                }
+            case "BYMONTHDAY":
+                let days = value.split(separator: ",").compactMap { Int(String($0)) }
+                daysOfTheMonth = days.map { NSNumber(value: $0) }
+            case "COUNT":
+                occurrenceCount = Int(value)
+            case "UNTIL":
+                let formatter = DateFormatter()
+                formatter.dateFormat = "yyyyMMdd'T'HHmmss'Z'"
+                formatter.timeZone = TimeZone(identifier: "UTC")
+                if let date = formatter.date(from: value) {
+                    endDate = date
+                } else {
+                    formatter.dateFormat = "yyyyMMdd"
+                    endDate = formatter.date(from: value)
+                }
+            default:
+                break
+            }
+        }
+
+        let recurrenceEnd: EKRecurrenceEnd?
+        if let count = occurrenceCount {
+            recurrenceEnd = EKRecurrenceEnd(occurrenceCount: count)
+        } else if let end = endDate {
+            recurrenceEnd = EKRecurrenceEnd(end: end)
+        } else {
+            recurrenceEnd = nil
+        }
+
+        return EKRecurrenceRule(
+            recurrenceWith: frequency,
+            interval: interval,
+            daysOfTheWeek: daysOfTheWeek.isEmpty ? nil : daysOfTheWeek,
+            daysOfTheMonth: daysOfTheMonth.isEmpty ? nil : daysOfTheMonth,
+            monthsOfTheYear: nil,
+            weeksOfTheYear: nil,
+            daysOfTheYear: nil,
+            setPositions: nil,
+            end: recurrenceEnd
+        )
     }
 }

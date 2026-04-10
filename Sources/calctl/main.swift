@@ -209,7 +209,8 @@ struct AddCmd: Command {
             isAllDay: args.bool("all-day") ? true : nil,
             notes: args.string("notes"),
             location: args.string("location"),
-            calendarName: args.string("calendar")
+            calendarName: args.string("calendar"),
+            recurrenceRule: args.string("recurrence")
         )
         let store = CalendarEventsStore()
         try await store.requestAccess()
@@ -301,6 +302,7 @@ EXAMPLES
   calctl today
   calctl date 2026-05-01 --calendar "Work"
   calctl add --title "Standup" --start "2026-04-11 09:00" --end "2026-04-11 09:30"
+  calctl add --title "Weekly Standup" --start "2026-04-14 09:00" --end "2026-04-14 09:30" --recurrence "FREQ=WEEKLY;INTERVAL=1;BYDAY=MO"
   calctl delete --id <event-id> --force
 """)
     }

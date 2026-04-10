@@ -65,6 +65,7 @@ public struct EventDraft: Sendable {
     public let notes: String?
     public let location: String?
     public let calendarName: String?
+    public let recurrenceRule: String?
 
     public init(
         title: String? = nil,
@@ -73,7 +74,8 @@ public struct EventDraft: Sendable {
         isAllDay: Bool? = nil,
         notes: String? = nil,
         location: String? = nil,
-        calendarName: String? = nil
+        calendarName: String? = nil,
+        recurrenceRule: String? = nil
     ) {
         self.title = title
         self.startDate = startDate
@@ -82,6 +84,7 @@ public struct EventDraft: Sendable {
         self.notes = notes
         self.location = location
         self.calendarName = calendarName
+        self.recurrenceRule = recurrenceRule
     }
 }
 
@@ -93,6 +96,7 @@ public struct EventUpdate: Sendable {
     public let notes: String?
     public let location: String?
     public let calendarName: String?
+    public let recurrenceRule: String?
 
     public init(
         title: String? = nil,
@@ -101,7 +105,8 @@ public struct EventUpdate: Sendable {
         isAllDay: Bool? = nil,
         notes: String? = nil,
         location: String? = nil,
-        calendarName: String? = nil
+        calendarName: String? = nil,
+        recurrenceRule: String? = nil
     ) {
         self.title = title
         self.startDate = startDate
@@ -110,5 +115,6 @@ public struct EventUpdate: Sendable {
         self.notes = notes
         self.location = location
         self.calendarName = calendarName
+        self.recurrenceRule = recurrenceRule
     }
 }
