@@ -129,7 +129,7 @@ public actor CalendarEventsStore {
         return eventToCalendarEvent(event)
     }
 
-    public func updateEvent(id: String, update: EventUpdate) async throws -> CalendarEvent {
+    public func updateEvent(id: String, update: EventUpdate, span: EKSpan = .futureEvents) async throws -> CalendarEvent {
         let event = try event(withID: id)
 
         if let title = update.title {
@@ -154,13 +154,13 @@ public actor CalendarEventsStore {
             event.calendar = try calendar(named: calendarName)
         }
 
-        try eventStore.save(event, span: .futureEvents, commit: true)
+        try eventStore.save(event, span: span, commit: true)
         return eventToCalendarEvent(event)
     }
 
-    public func deleteEvent(id: String) async throws {
+    public func deleteEvent(id: String, span: EKSpan = .futureEvents) async throws {
         let event = try event(withID: id)
-        try eventStore.remove(event, span: .futureEvents, commit: true)
+        try eventStore.remove(event, span: span, commit: true)
     }
 
     private func requestFullAccess() async throws -> Bool {

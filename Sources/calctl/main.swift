@@ -1,5 +1,6 @@
 import Foundation
 import CalendarCore
+import EventKit
 
 // MARK: - Date Parser
 
@@ -236,9 +237,10 @@ struct EditCmd: Command {
             location: args.string("location"),
             calendarName: args.string("calendar")
         )
+        let span: EKSpan = args.bool("this-only") ? .thisEvent : .futureEvents
         let store = CalendarEventsStore()
         try await store.requestAccess()
-        let event = try await store.updateEvent(id: id, update: update)
+        let event = try await store.updateEvent(id: id, update: update, span: span)
         print("Updated: \(event.title) (\(event.id))")
     }
 }
@@ -259,9 +261,10 @@ struct DeleteCmd: Command {
                 print("Aborted."); return
             }
         }
+        let span: EKSpan = args.bool("this-only") ? .thisEvent : .futureEvents
         let store = CalendarEventsStore()
         try await store.requestAccess()
-        try await store.deleteEvent(id: id)
+        try await store.deleteEvent(id: id, span: span)
         print("Deleted: \(id)")
     }
 }
