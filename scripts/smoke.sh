@@ -49,7 +49,7 @@ run_with_timeout() {
     return $?
 }
 
-log "Apple Calendar CLI - MVP Smoke Test"
+log "calctl - MVP Smoke Test"
 log "Project: $PROJECT_DIR"
 echo
 

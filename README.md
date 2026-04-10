@@ -1,4 +1,4 @@
-# apple-calendar-ctl (`calctl`)
+# calctl
 
 Native macOS CLI for Apple Calendar via EventKit.
 
@@ -7,8 +7,8 @@ Native macOS CLI for Apple Calendar via EventKit.
 ## Build
 
 ```bash
-git clone <repo-url> apple-calendar-ctl
-cd apple-calendar-ctl
+git clone <repo-url> calctl
+cd calctl
 swift build
 ```
 

@@ -271,7 +271,7 @@ struct HelpCmd: Command {
     let name = "help"
     func run(args: Args) async throws {
         print("""
-apple-calendar-ctl - Apple Calendar CLI
+calctl - Apple Calendar CLI
 
 USAGE
   calctl <command> [options]
@@ -344,7 +344,7 @@ let argv = Array(CommandLine.arguments.dropFirst())
 
 func showHelp() {
     print("""
-apple-calendar-ctl - Apple Calendar CLI
+calctl - Apple Calendar CLI
 
 USAGE
   calctl <command> [options]
