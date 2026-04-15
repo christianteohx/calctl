@@ -299,11 +299,15 @@ GLOBAL OPTIONS
   --quiet                Count-only output
   --calendar <name>      Filter by calendar name
   --calendar-id <id>     Filter by calendar id (preferred when names duplicate)
+  --attendees            Show attendee details for events (today/tomorrow/week/date)
 
 EXAMPLES
   calctl list
   calctl today
+  calctl today --attendees
+  calctl week --attendees
   calctl date 2026-05-01 --calendar "Work"
+  calctl date 2026-05-01 --attendees --json
   calctl add --title "Standup" --start "2026-04-11 09:00" --end "2026-04-11 09:30"
   calctl add --title "Weekly Standup" --start "2026-04-14 09:00" --end "2026-04-14 09:30" --recurrence "FREQ=WEEKLY;INTERVAL=1;BYDAY=MO"
   calctl delete --id <event-id> --force
@@ -340,7 +344,7 @@ private func queryEvents(
         events = events.filter { $0.calendarID == calendarID }
     }
     let formatter = OutputFormatter(mode: args.bool("json") ? .json : .plain)
-    if let output = formatter.formatEvents(events, dateLabel: label) { print(output) }
+    if let output = formatter.formatEvents(events, dateLabel: label, showAttendees: args.bool("attendees")) { print(output) }
 }
 
 // MARK: - Entry Point
