@@ -59,7 +59,28 @@ Without `--this-only`, changes apply to this and all future occurrences.
 --plain                Plain text output (default)
 --calendar <name>      Filter by calendar name
 --calendar-id <id>     Filter by calendar id
+--attendees            Show attendee details for event queries (today/tomorrow/week/date)
 ```
+
+## Attendees
+
+View attendee details for events using the `--attendees` flag with `today`, `tomorrow`, `week`, or `date` commands:
+
+```bash
+# Show today's events with attendees
+calctl today --attendees
+
+# Show this week's events with attendees
+calctl week --attendees
+
+# JSON output with attendees
+calctl today --attendees --json
+
+# Specific date with attendees
+calctl date 2026-05-01 --attendees
+```
+
+Each attendee shows name/email and participation status (accepted, pending, declined, tentative).
 
 ## Build from Source
 

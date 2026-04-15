@@ -118,6 +118,20 @@ public struct OutputFormatter {
 
     // MARK: - Events
 
+    public struct AttendeeOutput: Codable {
+        public let name: String?
+        public let email: String?
+        public let status: String
+        public let isCurrentUser: Bool
+
+        public init(attendee: Attendee) {
+            self.name = attendee.name
+            self.email = attendee.email
+            self.status = attendee.status
+            self.isCurrentUser = attendee.isCurrentUser
+        }
+    }
+
     public struct EventOutput: Codable {
         public let id: String
         public let title: String
@@ -129,8 +143,9 @@ public struct OutputFormatter {
         public let calendarName: String
         public let sourceTitle: String
         public let sourceType: String
+        public let attendees: [AttendeeOutput]?
 
-        public init(event: CalendarEvent) {
+        public init(event: CalendarEvent, includeAttendees: Bool = false) {
             self.id = event.id
             self.title = event.title
             self.startDate = OutputFormatter.dateFormatter.string(from: event.startDate)
@@ -141,6 +156,7 @@ public struct OutputFormatter {
             self.calendarName = event.calendarName
             self.sourceTitle = event.calendarSourceTitle
             self.sourceType = event.calendarSourceType
+            self.attendees = includeAttendees ? event.attendees.map { AttendeeOutput(attendee: $0) } : nil
         }
     }
 
@@ -163,10 +179,10 @@ public struct OutputFormatter {
         return f
     }()
 
-    public func formatEvents(_ events: [CalendarEvent], dateLabel: String? = nil) -> String? {
+    public func formatEvents(_ events: [CalendarEvent], dateLabel: String? = nil, showAttendees: Bool = false) -> String? {
         switch mode {
         case .json:
-            let output = events.map { EventOutput(event: $0) }
+            let output = events.map { EventOutput(event: $0, includeAttendees: showAttendees) }
             return formatJSON(output)
         case .plain:
             var lines = [String]()
@@ -183,6 +199,15 @@ public struct OutputFormatter {
                     lines.append("[\(time)] \(event.title) (\(event.calendarName) · \(event.calendarSourceTitle)/\(event.calendarSourceType))")
                     if let loc = event.location, !loc.isEmpty {
                         lines.append("  Location: \(loc)")
+                    }
+                    if showAttendees && !event.attendees.isEmpty {
+                        lines.append("  Attendees:")
+                        for attendee in event.attendees {
+                            let currentUserMarker = attendee.isCurrentUser ? " (you)" : ""
+                            let name = attendee.displayName
+                            let email = attendee.email.map { " <\($0)>" } ?? ""
+                            lines.append("    - \(name)\(email) [\(attendee.status)]\(currentUserMarker)")
+                        }
                     }
                 }
             }

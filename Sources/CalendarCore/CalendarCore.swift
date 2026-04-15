@@ -189,6 +189,7 @@ public actor CalendarEventsStore {
             let calendarSourceTitle: String
             let calendarSourceType: String
             let recurrenceRule: String?
+            let attendees: [Attendee]
         }
 
         let eventData = await withCheckedContinuation { (continuation: CheckedContinuation<[EventData], Never>) in
@@ -196,7 +197,8 @@ public actor CalendarEventsStore {
             let events = eventStore.events(matching: predicate)
 
             let data = events.map { event in
-                EventData(
+                let attendees = extractAttendees(from: event)
+                return EventData(
                     id: event.eventIdentifier,
                     title: event.title ?? "",
                     startDate: event.startDate,
@@ -208,7 +210,8 @@ public actor CalendarEventsStore {
                     calendarName: event.calendar.title,
                     calendarSourceTitle: event.calendar.source.title,
                     calendarSourceType: sourceTypeString(event.calendar.source.sourceType),
-                    recurrenceRule: nil
+                    recurrenceRule: nil,
+                    attendees: attendees
                 )
             }
             continuation.resume(returning: data)
@@ -227,9 +230,44 @@ public actor CalendarEventsStore {
                 calendarName: data.calendarName,
                 calendarSourceTitle: data.calendarSourceTitle,
                 calendarSourceType: data.calendarSourceType,
-                recurrenceRule: data.recurrenceRule
+                recurrenceRule: data.recurrenceRule,
+                attendees: data.attendees
             )
         }
+    }
+
+    private func extractAttendees(from event: EKEvent) -> [Attendee] {
+        guard let participants = event.attendees else { return [] }
+        return participants.compactMap { participant in
+            let statusString: String
+            switch participant.participantStatus {
+            case .pending: statusString = "pending"
+            case .accepted: statusString = "accepted"
+            case .declined: statusString = "declined"
+            case .tentative: statusString = "tentative"
+            case .delegated: statusString = "delegated"
+            case .completed: statusString = "completed"
+            case .inProcess: statusString = "inProcess"
+            case .unknown: statusString = "unknown"
+            @unknown default: statusString = "unknown"
+            }
+            return Attendee(
+                id: participant.url.absoluteString,
+                name: participant.name,
+                email: extractEmail(from: participant),
+                status: statusString,
+                isCurrentUser: participant.isCurrentUser
+            )
+        }
+    }
+
+    private func extractEmail(from participant: EKParticipant) -> String? {
+        // EKParticipant URL is typically mailto:email@example.com
+        let urlString = participant.url.absoluteString
+        if urlString.hasPrefix("mailto:") {
+            return String(urlString.dropFirst(7))
+        }
+        return nil
     }
 
     private func event(withID id: String) throws -> EKEvent {
@@ -260,7 +298,8 @@ public actor CalendarEventsStore {
             calendarName: event.calendar.title,
             calendarSourceTitle: event.calendar.source.title,
             calendarSourceType: sourceTypeString(event.calendar.source.sourceType),
-            recurrenceRule: nil
+            recurrenceRule: nil,
+            attendees: extractAttendees(from: event)
         )
     }
 

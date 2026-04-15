@@ -1,5 +1,31 @@
 import Foundation
 
+public struct Attendee: Identifiable, Codable, Sendable, Equatable {
+    public let id: String
+    public let name: String?
+    public let email: String?
+    public let status: String
+    public let isCurrentUser: Bool
+
+    public init(id: String, name: String?, email: String?, status: String, isCurrentUser: Bool) {
+        self.id = id
+        self.name = name
+        self.email = email
+        self.status = status
+        self.isCurrentUser = isCurrentUser
+    }
+
+    public var displayName: String {
+        if let name = name, !name.isEmpty {
+            return name
+        }
+        if let email = email, !email.isEmpty {
+            return email
+        }
+        return "Unknown"
+    }
+}
+
 public struct CalendarEvent: Identifiable, Codable, Sendable, Equatable {
     public let id: String
     public let title: String
@@ -13,6 +39,7 @@ public struct CalendarEvent: Identifiable, Codable, Sendable, Equatable {
     public let calendarSourceTitle: String
     public let calendarSourceType: String
     public let recurrenceRule: String?
+    public let attendees: [Attendee]
 
     public init(
         id: String,
@@ -26,7 +53,8 @@ public struct CalendarEvent: Identifiable, Codable, Sendable, Equatable {
         calendarName: String,
         calendarSourceTitle: String,
         calendarSourceType: String,
-        recurrenceRule: String?
+        recurrenceRule: String?,
+        attendees: [Attendee] = []
     ) {
         self.id = id
         self.title = title
@@ -40,6 +68,7 @@ public struct CalendarEvent: Identifiable, Codable, Sendable, Equatable {
         self.calendarSourceTitle = calendarSourceTitle
         self.calendarSourceType = calendarSourceType
         self.recurrenceRule = recurrenceRule
+        self.attendees = attendees
     }
 }
 
