@@ -237,8 +237,18 @@ public actor CalendarEventsStore {
     }
 
     private func extractAttendees(from event: EKEvent) -> [Attendee] {
-        guard let participants = event.attendees else { return [] }
-        return participants.compactMap { participant in
+        // Use performSelector to invoke the dynamic Objective-C getter.
+        // Swift's typed .attendees property can return nil even when attendees exist
+        // (Exchange calendars especially), but calling the selector directly
+        // triggers the same fetch that Calendar.app and Objective-C use.
+        let participants: [EKParticipant]? = {
+            guard let result = event.perform(NSSelectorFromString("attendees")) else {
+                return nil
+            }
+            return result.takeUnretainedValue() as? [EKParticipant]
+        }()
+        guard let attendees = participants, !attendees.isEmpty else { return [] }
+        return attendees.compactMap { participant in
             let statusString: String
             switch participant.participantStatus {
             case .pending: statusString = "pending"
