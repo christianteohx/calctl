@@ -17,6 +17,13 @@ public struct Attendee: Identifiable, Codable, Sendable, Equatable {
 
     public var displayName: String {
         if let name = name, !name.isEmpty {
+            // Exchange returns "Last, First" — swap to "First Last"
+            if name.contains(", ") {
+                let parts = name.split(separator: ",", maxSplits: 1).map { $0.trimmingCharacters(in: .whitespaces) }
+                if parts.count == 2 {
+                    return "\(parts[1]) \(parts[0])"
+                }
+            }
             return name
         }
         if let email = email, !email.isEmpty {

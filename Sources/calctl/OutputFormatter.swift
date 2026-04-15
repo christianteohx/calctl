@@ -125,7 +125,7 @@ public struct OutputFormatter {
         public let isCurrentUser: Bool
 
         public init(attendee: Attendee) {
-            self.name = attendee.name
+            self.name = attendee.displayName
             self.email = attendee.email
             self.status = attendee.status
             self.isCurrentUser = attendee.isCurrentUser
