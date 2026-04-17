@@ -20,3 +20,12 @@
 
 # calctl binary
 calctl
+calctl-bin
+.build/
+.swiftpm/
+summary.md
+workflow.md
+decisions.md
+failures.md
+BACKLOG.md
+architecture.md
